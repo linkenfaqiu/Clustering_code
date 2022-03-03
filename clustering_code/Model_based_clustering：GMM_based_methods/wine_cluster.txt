@@ -1,0 +1,52 @@
+#以下分别按照1，2，....标识的段落，依次将R语句拷贝到RGui运行，看测试结果
+#--------------------------------------------------1------------------------------------------------
+#基于模型聚类的代码：
+  library(mclust)
+  install.packages("gclus")
+  data("wine", package = "gclus")
+  dim(wine)
+#输入wine可以看到数据集。
+  print(wine)
+#--------------------------------------------------2------------------------------------------------
+# 第一列是标签，和聚类无关，可以删除
+  X <- data.matrix(wine[,-1])
+  mod <- Mclust(X)
+#--------------------------------------------------3------------------------------------------------
+#直接输入mod会得到如下信息：
+#这里需要对结果稍作解释，第一行告诉我们'Mclust'以VVE模型将数据分为3类。第3行开始，它告诉我们'Mclust'的输出结果中包含了如下内容，我们可以通过$来提取。
+  print(mod)
+#举个例子，我们提取Mclust的聚类结果和已知结果进行比较
+  t=table(wine$Class, mod$classification)
+  print(t)
+#--------------------------------------------------4------------------------------------------------
+#这样我们就可以算对有标签数据的分类精确度
+  sum=0
+  for(i in 1:dim(t)[1]){
+      sum=sum+t[i,i]
+  }
+  cat('精确率为：',sum/dim(wine)[1],'\n')
+#--------------------------------------------------5------------------------------------------------
+#输出每个样本的簇类别
+  mod$classification
+# adjustedRandIndex:评估聚类效果，输出的值越接近1，说明效果越好。
+  adjustedRandIndex(wine$Class, mod$classification)
+#--------------------------------------------------6------------------------------------------------
+#可以查看mclust提供的所有模型，一共提供了14种模型，Mclust默认得到14种模型1到9组的分析结果，然后根据一定的标准选择最终的模型和分组数[1]。
+  ?mclustModelNames
+#--------------------------------------------------7------------------------------------------------
+#Mclust提供了两种方法用于评估不同模型在不同分组下的可能性，分别为：
+#BIC( Bayesian Information Criterion ): 贝叶斯信息判别标准
+#ICL( integrated complete-data likelihood ): 综合完全数据可能性
+#Mclust默认用的就是BIC，因此我们可以用plot.Mclust绘制其中BIC变化曲线
+  plot.Mclust(mod, what = "BIC", 
+       ylim = range(mod$BIC[,-(1:2)], na.rm = TRUE), 
+       legendArgs = list(x = "bottomleft", cex =0.7))
+#--------------------------------------------------8------------------------------------------------
+#Mclucst会选择其中BIC最大的模型和分组作为最终的结果。
+#另一种画图方式
+#输入1-6可得到不同的结果，输入0退出。
+  drmod <- MclustDR(mod, lambda = 1)
+  plot(drmod)
+#参考文献
+#[1]Scrucca L ,  Fop M ,  Murphy T B . mclust 5: Clustering, Classification and Density Estimation Using Gaussian Finite Mixture Models[J]. The R Journal, 2016, 8(1):205-233.
+

@@ -1,0 +1,10 @@
+  library(plotrix)
+  source("DBSCAN.R")
+#data=read.csv('three_cluster.csv')
+#DBSCAN(data,0.3,5,showplot=TRUE,arrow=FALSE）
+  data=read.table('USArrests.txt')
+  DBSCAN(data,0.65,4,showplot=TRUE,arrow=TRUE)
+  cat("样本点的聚类结果为：\n")
+  print(X$cluster)
+  cat("判断每个样本点是否为核心点：\n")
+  print(X$isseed)
